@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#7C3AED">
+<title>Mellichat</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --violet:#7C3AED; --violet-d:#5B21B6; --violet-l:#A78BFA; --lilac:#F1ECFE; --mist:#F8F6FD;
+  --ink:#1E1433; --mute:#7A7194; --line:#E9E4F3; --white:#fff;
+  --online:#22C55E; --away:#FACC15; --offline:#9CA3AF;
+  --display:'Bricolage Grotesque','DM Sans',system-ui,sans-serif;
+  --body:'DM Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{font-family:var(--body);color:var(--ink);background:#ECE7F7;display:flex;justify-content:center;align-items:center;font-size:15px}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+input,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--violet-l);outline-offset:2px}
+[hidden]{display:none!important}
+
+/* ---------- shell ---------- */
+#shell{position:relative;width:100%;max-width:440px;height:100dvh;background:var(--white);overflow:hidden}
+@media (min-width:500px){#shell{height:min(860px,calc(100dvh - 32px));border-radius:32px;box-shadow:0 30px 80px -20px rgba(76,29,149,.45)}}
+
+/* ---------- boot splash ---------- */
+#boot{position:absolute;inset:0;z-index:60;background:linear-gradient(165deg,#4C1D95 0%,#7C3AED 55%,#A78BFA 100%);display:grid;place-items:center}
+#boot .logo{margin:0;animation:pulse 1.2s ease-in-out infinite}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+
+/* ---------- auth ---------- */
+#auth{position:absolute;inset:0;background:linear-gradient(165deg,#4C1D95 0%,#7C3AED 55%,#A78BFA 100%);display:flex;flex-direction:column;z-index:20;overflow:hidden}
+#auth .orb{position:absolute;border-radius:50%;background:rgba(255,255,255,.12);animation:drift 14s ease-in-out infinite}
+#auth .orb:nth-child(1){width:180px;height:180px;left:-50px;top:40px}
+#auth .orb:nth-child(2){width:90px;height:90px;right:30px;top:90px;animation-duration:10s;animation-delay:-3s}
+#auth .orb:nth-child(3){width:130px;height:130px;right:-40px;top:230px;animation-duration:17s;animation-delay:-7s}
+#auth .orb:nth-child(4){width:50px;height:50px;left:40%;top:30px;animation-duration:9s;animation-delay:-5s;background:rgba(255,255,255,.2)}
+@keyframes drift{0%,100%{transform:translate(0,0)}33%{transform:translate(18px,-26px)}66%{transform:translate(-14px,16px)}}
+.hero{flex:1;min-height:150px;display:flex;flex-direction:column;justify-content:center;padding:28px 28px 8px;color:#fff;position:relative}
+.logo{width:64px;height:64px;border-radius:20px;background:#fff;display:grid;place-items:center;margin-bottom:18px;box-shadow:0 12px 30px -8px rgba(30,20,51,.5);animation:pop .8s cubic-bezier(.2,1.4,.4,1) both}
+@keyframes pop{from{transform:scale(.4) rotate(-12deg);opacity:0}to{transform:none;opacity:1}}
+.hero h1{font-family:var(--display);font-weight:800;font-size:38px;line-height:1.02;letter-spacing:-.02em}
+.hero p{margin-top:10px;opacity:.88;max-width:28ch;line-height:1.4}
+.sheet{background:#fff;border-radius:30px 30px 0 0;padding:20px 22px calc(22px + env(safe-area-inset-bottom));position:relative;animation:rise .7s .15s cubic-bezier(.2,.9,.2,1) both;box-shadow:0 -20px 50px -20px rgba(30,20,51,.4);max-height:80%;overflow-y:auto}
+@keyframes rise{from{transform:translateY(100%)}to{transform:none}}
+.seg{position:relative;display:grid;grid-template-columns:1fr 1fr;background:var(--lilac);border-radius:14px;padding:4px;margin-bottom:16px}
+.seg .thumb{position:absolute;top:4px;bottom:4px;left:4px;width:calc(50% - 4px);background:#fff;border-radius:11px;box-shadow:0 2px 8px rgba(91,33,182,.18);transition:transform .3s cubic-bezier(.3,1.2,.4,1)}
+.seg.in .thumb{transform:translateX(100%)}
+.seg button{position:relative;padding:10px;font-weight:700;color:var(--mute);transition:color .2s}
+.seg button.on{color:var(--violet-d)}
+.fld{display:block;margin-bottom:12px;overflow:hidden;transition:max-height .35s ease,opacity .25s,margin .35s;max-height:90px}
+.fld.collapse{max-height:0;opacity:0;margin-bottom:0}
+.fld span{display:block;font-size:12.5px;font-weight:700;color:var(--mute);margin-bottom:5px}
+.fld input,.inp{width:100%;padding:13px 14px;border:1.5px solid var(--line);border-radius:14px;background:var(--mist);outline:0;transition:border .2s,background .2s}
+.fld input:focus,.inp:focus{border-color:var(--violet);background:#fff}
+.btn{width:100%;padding:14px;border-radius:14px;background:var(--violet);color:#fff;font-weight:700;font-size:16px;transition:transform .15s,background .2s;box-shadow:0 8px 20px -8px rgba(124,58,237,.8)}
+.btn:active{transform:scale(.98)}
+.btn:disabled{opacity:.6;cursor:not-allowed}
+.btn.ghost{background:#fff;color:var(--ink);border:1.5px solid var(--line);box-shadow:none;display:flex;gap:10px;align-items:center;justify-content:center}
+.or{display:flex;align-items:center;gap:10px;color:var(--mute);font-size:12.5px;margin:12px 0}
+.or::before,.or::after{content:"";flex:1;height:1px;background:var(--line)}
+.err{color:#DC2626;font-size:13.5px;min-height:18px;margin-bottom:8px}
+.modehint{margin-top:12px;font-size:12px;color:var(--mute);text-align:center;line-height:1.4}
+.setup{background:var(--lilac);border:1.5px solid var(--violet-l);color:var(--violet-d);border-radius:16px;padding:14px;margin-bottom:14px;font-size:13.5px;line-height:1.45}
+.setup b{display:block;font-family:var(--display);font-size:16px;margin-bottom:4px}
+
+/* ---------- app frame ---------- */
+#app{position:absolute;inset:0;display:flex;flex-direction:column;background:#fff}
+#hdr{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;border-bottom:1px solid var(--line);background:#fff;flex:none}
+.hd-user{display:flex;align-items:center;gap:11px;text-align:left}
+.hd-user b{display:block;font-family:var(--display);font-size:16px;line-height:1.1}
+.hd-user small{display:flex;align-items:center;gap:5px;font-size:12.5px;color:var(--mute);margin-top:2px}
+.hd-user small i{width:8px;height:8px;border-radius:50%;background:var(--offline)}
+.hd-user small.online i{background:var(--online)}.hd-user small.away i{background:var(--away)}
+.brand{font-family:var(--display);font-weight:800;color:var(--violet);font-size:21px;letter-spacing:-.03em}
+main{flex:1;position:relative;overflow:hidden}
+.view{position:absolute;inset:0;overflow-y:auto;padding:20px 18px 24px;opacity:0;pointer-events:none;transform:translateY(8px);transition:opacity .22s,transform .22s}
+.view.on{opacity:1;pointer-events:auto;transform:none}
+.view h2{font-family:var(--display);font-weight:800;font-size:28px;letter-spacing:-.02em;margin-bottom:14px}
+.view h3{font-size:13.5px;font-weight:700;color:var(--mute);margin:20px 0 8px}
+
+/* avatar */
+.av{position:relative;flex:none;display:grid;place-items:center;width:44px;height:44px;border-radius:50%;color:#fff;font-family:var(--display);font-weight:800;font-size:16px}
+.av.sm{width:38px;height:38px;font-size:14px}.av.lg{width:92px;height:92px;font-size:34px}
+.av .dot{position:absolute;right:-1px;bottom:-1px;width:30%;height:30%;min-width:11px;min-height:11px;border-radius:50%;border:2.5px solid #fff;background:var(--offline);transition:background .3s}
+.av .dot.online{background:var(--online)}.av .dot.away{background:var(--away)}
+
+/* rows */
+.list{display:flex;flex-direction:column}
+.rowi{display:flex;align-items:center;gap:13px;padding:11px 6px;border-radius:16px;width:100%;text-align:left;transition:background .15s}
+button.rowi:active,button.rowi:hover{background:var(--mist)}
+.rowi .mid{flex:1;min-width:0}
+.rowi .mid b{display:block;font-size:15.5px}
+.rowi .mid span{display:block;font-size:13.5px;color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.rowi .mid span.unr{color:var(--ink);font-weight:700}
+.rowi .mid span.typ{color:var(--violet);font-weight:700}
+.rowi .end{display:flex;flex-direction:column;align-items:flex-end;gap:5px;font-size:12px;color:var(--mute)}
+.badge{min-width:20px;height:20px;padding:0 6px;border-radius:10px;background:var(--violet);color:#fff;font-size:12px;font-weight:700;display:grid;place-items:center}
+.pill{padding:7px 14px;border-radius:20px;background:var(--violet);color:#fff;font-weight:700;font-size:13.5px}
+.pill.soft{background:var(--lilac);color:var(--violet-d)}
+.pill.line{background:#fff;border:1.5px solid var(--line);color:var(--mute)}
+.empty{text-align:center;padding:44px 20px;color:var(--mute);line-height:1.5}
+.empty b{display:block;color:var(--ink);font-family:var(--display);font-size:19px;margin-bottom:6px}
+.empty .pill{margin-top:14px;display:inline-block}
+
+/* search */
+.search{display:flex;gap:8px;align-items:center}
+.search .wrap{position:relative;flex:1}
+.search .wrap em{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-style:normal;color:var(--violet);font-weight:700}
+.search .inp{padding-left:32px}
+.search .pill{padding:13px 18px;border-radius:14px}
+
+/* profile */
+.pcard{display:flex;flex-direction:column;align-items:center;text-align:center;padding:6px 0 4px}
+.pcard .name{font-family:var(--display);font-weight:800;font-size:24px;margin-top:12px}
+.pcard .uname{color:var(--mute);margin-top:2px}
+.modes{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.mode{display:flex;flex-direction:column;align-items:center;gap:8px;padding:14px 6px;border-radius:16px;border:1.5px solid var(--line);font-weight:700;font-size:13.5px;transition:all .2s}
+.mode i{width:14px;height:14px;border-radius:50%;background:var(--offline)}
+.mode[data-s=online] i{background:var(--online)}.mode[data-s=away] i{background:var(--away)}
+.mode.on{border-color:var(--violet);background:var(--lilac);color:var(--violet-d);box-shadow:0 6px 16px -8px rgba(124,58,237,.7)}
+.swatches{display:flex;gap:10px;flex-wrap:wrap}
+.sw{width:34px;height:34px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 0 1.5px var(--line);transition:transform .15s}
+.sw.on{box-shadow:0 0 0 3px var(--violet);transform:scale(1.08)}
+.stack{display:flex;flex-direction:column;gap:10px}
+.note{font-size:12px;color:var(--mute);text-align:center;margin-top:16px;line-height:1.4}
+.danger{color:#DC2626;font-weight:700;padding:14px;width:100%;margin-top:6px}
+
+/* bottom nav */
+nav{flex:none;display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--line);background:#fff;padding:6px 8px calc(6px + env(safe-area-inset-bottom))}
+nav button{position:relative;display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 0;font-size:12px;font-weight:700;color:var(--mute);transition:color .2s}
+nav button svg{width:25px;height:25px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:transform .25s cubic-bezier(.3,1.5,.5,1)}
+nav button.on{color:var(--violet)}
+nav button.on svg{transform:translateY(-2px) scale(1.1);fill:var(--lilac)}
+nav .badge{position:absolute;top:2px;left:calc(50% + 6px);min-width:18px;height:18px;font-size:11px;border:2px solid #fff}
+
+/* chat window */
+#chat{position:absolute;inset:0;background:var(--mist);display:flex;flex-direction:column;transform:translateX(102%);transition:transform .34s cubic-bezier(.2,.85,.25,1);z-index:10;visibility:hidden}
+#chat.open{transform:none;visibility:visible}
+.chead{display:flex;align-items:center;gap:10px;padding:10px 12px;background:#fff;border-bottom:1px solid var(--line);flex:none}
+.back{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;color:var(--violet)}
+.back:active{background:var(--lilac)}
+.back svg,.send svg,.attach svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.chead .t b{display:block;font-family:var(--display);font-size:16px;line-height:1.1}
+.chead .t small{font-size:12.5px;color:var(--mute)}
+.chead .t small.typing{color:var(--violet);font-weight:700}
+#cbanner{background:var(--lilac);color:var(--violet-d);font-size:12.5px;text-align:center;padding:7px 12px;flex:none}
+/* the dotted wallpaper is Mellichat's signature touch */
+#msgs{flex:1;overflow-y:auto;padding:16px 14px 8px;display:flex;flex-direction:column;gap:3px;background:radial-gradient(circle at 1px 1px,rgba(124,58,237,.14) 1.2px,transparent 0) 0 0/22px 22px,var(--mist)}
+.mrow{display:flex;flex-direction:column;max-width:80%}
+.mrow.me{align-self:flex-end;align-items:flex-end;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.mrow.them{align-self:flex-start;align-items:flex-start}
+.bub{padding:10px 14px;border-radius:20px;line-height:1.38;word-break:break-word;white-space:pre-wrap;animation:in .22s ease-out}
+@keyframes in{from{transform:translateY(8px) scale(.96);opacity:0}to{transform:none;opacity:1}}
+.me .bub{background:linear-gradient(135deg,#8B5CF6,#7C3AED);color:#fff;border-bottom-right-radius:6px}
+.them .bub{background:#fff;color:var(--ink);border:1px solid var(--line);border-bottom-left-radius:6px}
+.bub.hasimg{padding:4px}
+.mimg{display:block;max-width:230px;width:100%;max-height:300px;object-fit:cover;border-radius:16px;cursor:zoom-in;background:var(--lilac)}
+.mrow time{font-size:11px;color:var(--mute);margin:3px 6px 8px;display:flex;align-items:center;gap:2px}
+.tk{letter-spacing:-3px;margin-left:3px;color:var(--mute);font-weight:700}
+.tk.rd{color:var(--violet)}
+.typingb{display:flex;gap:4px;padding:13px 15px}
+.typingb i{width:7px;height:7px;border-radius:50%;background:var(--violet-l);animation:bounce 1s infinite}
+.typingb i:nth-child(2){animation-delay:.15s}.typingb i:nth-child(3){animation-delay:.3s}
+@keyframes bounce{0%,60%,100%{transform:none}30%{transform:translateY(-5px)}}
+#imgprev{display:flex;align-items:center;gap:12px;padding:10px 14px;background:#fff;border-top:1px solid var(--line);flex:none}
+#imgprev img{width:64px;height:64px;border-radius:12px;object-fit:cover}
+#imgprev span{flex:1;font-size:13.5px;color:var(--mute)}
+#imgprev button{width:34px;height:34px;border-radius:50%;background:var(--lilac);color:var(--violet-d);font-weight:700}
+.cform{display:flex;gap:8px;align-items:center;padding:10px 12px calc(10px + env(safe-area-inset-bottom));background:#fff;border-top:1px solid var(--line);flex:none}
+.cform .inp{border-radius:24px;padding:12px 18px}
+.attach{width:44px;height:44px;border-radius:50%;background:var(--lilac);color:var(--violet-d);display:grid;place-items:center;flex:none;transition:transform .15s}
+.attach:active{transform:scale(.92)}
+.send{width:46px;height:46px;border-radius:50%;background:var(--violet);color:#fff;display:grid;place-items:center;flex:none;transition:transform .15s,opacity .2s}
+.send:active{transform:scale(.92)}.send:disabled{opacity:.45}
+
+/* modal, menus, viewer, toast */
+#modal{position:absolute;inset:0;background:rgba(30,20,51,.55);z-index:30;display:grid;place-items:center;padding:24px}
+.mcard{background:#fff;border-radius:24px;padding:24px;width:100%;animation:pop .45s cubic-bezier(.2,1.3,.4,1)}
+.mcard h3{font-family:var(--display);font-size:22px;color:var(--ink);margin:0 0 6px}
+.mcard p{color:var(--mute);margin-bottom:14px;line-height:1.4}
+.mcard p.err{margin-bottom:8px;color:#DC2626}
+.mcard .danger{margin-top:4px;padding:10px}
+#msgmenu{position:absolute;inset:0;z-index:35;background:rgba(30,20,51,.45);display:flex;align-items:flex-end;padding:14px}
+.mm{width:100%;background:#fff;border-radius:22px;padding:8px;animation:rise .3s cubic-bezier(.2,.9,.2,1)}
+.mm button{width:100%;padding:15px;border-radius:14px;font-weight:700;font-size:16px}
+.mm button:active{background:var(--mist)}
+.mm .del{color:#DC2626}
+#viewer{position:absolute;inset:0;z-index:36;background:rgba(20,10,40,.94);display:grid;place-items:center;padding:16px}
+#viewer img{max-width:100%;max-height:100%;border-radius:10px;object-fit:contain}
+#viewer button{position:absolute;top:14px;right:14px;width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,.18);color:#fff;font-size:20px}
+#toast{position:absolute;left:50%;top:14px;transform:translate(-50%,-90px);background:var(--ink);color:#fff;padding:11px 18px;border-radius:24px;font-size:14px;font-weight:500;z-index:70;transition:transform .35s cubic-bezier(.3,1.3,.5,1);max-width:90%;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,.3)}
+#toast.show{transform:translate(-50%,0)}
+
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+<div id="shell">
+
+  <div id="boot"><div class="logo">
+    <svg width="36" height="36" viewBox="0 0 36 36"><path d="M18 4C9.7 4 4 9.3 4 16.4c0 4 1.9 7.4 5 9.6V32l5.6-3.3c1.1.2 2.3.4 3.4.4 8.3 0 14-5.3 14-12.7S26.3 4 18 4Z" fill="#7C3AED"/><circle cx="12.500" cy="16.500" r="1.900" fill="#fff"/><circle cx="18" cy="16.500" r="1.900" fill="#fff"/><circle cx="23.500" cy="16.500" r="1.900" fill="#fff"/></svg>
+  </div></div>
+
+  <!-- ================= AUTH / ONBOARDING (the dashboard stays hidden until sign-in succeeds) ================= -->
+  <section id="auth">
+    <span class="orb"></span><span class="orb"></span><span class="orb"></span><span class="orb"></span>
+    <div class="hero">
+      <div class="logo">
+        <svg width="36" height="36" viewBox="0 0 36 36"><path d="M18 4C9.7 4 4 9.3 4 16.4c0 4 1.9 7.4 5 9.6V32l5.6-3.3c1.1.2 2.3.4 3.4.4 8.3 0 14-5.3 14-12.7S26.3 4 18 4Z" fill="#7C3AED"/><circle cx="12.500" cy="16.500" r="1.900" fill="#fff"/><circle cx="18" cy="16.500" r="1.900" fill="#fff"/><circle cx="23.500" cy="16.500" r="1.900" fill="#fff"/></svg>
+      </div>
+      <h1>Mellichat.<br>Text free,<br>stay close.</h1>
+      <p>Pick a username, find your friends and start talking.</p>
+    </div>
+    <div class="sheet">
+      <div class="setup" id="setup" hidden><b>Add your Firebase keys</b>Paste your project’s config into <code>firebaseConfig</code> at the top of the script, then reload. Setup steps are in the code comments.</div>
+      <div class="seg" id="seg"><span class="thumb"></span>
+        <button type="button" class="on" data-mode="up">Sign up</button>
+        <button type="button" data-mode="in">Sign in</button>
+      </div>
+      <form id="authForm" novalidate>
+        <label class="fld" id="fldUser"><span>Username</span><input id="fUser" autocomplete="username" autocapitalize="none" placeholder="e.g. violet_fox" maxlength="15"></label>
+        <label class="fld"><span>Email or Gmail</span><input id="fEmail" type="email" autocomplete="email" placeholder="you@gmail.com"></label>
+        <label class="fld"><span>Password</span><input id="fPass" type="password" autocomplete="current-password" placeholder="At least 6 characters"></label>
+        <p class="err" id="authErr" role="alert"></p>
+        <button class="btn" id="authBtn" type="submit">Create account</button>
+      </form>
+      <div class="or">or</div>
+      <button class="btn ghost" id="googleBtn" type="button">
+        <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.1C12.4 13.6 17.7 9.5 24 9.5Z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.2 5.4-4.7 7.1l7.3 5.7c4.3-4 6.8-9.9 6.8-17.3Z"/><path fill="#FBBC05" d="M10.5 28.7a14.500 14.500 0 0 1 0-9.4l-7.9-6.1a24 24 0 0 0 0 21.600l7.900-6.100Z"/><path fill="#34A853" d="M24 48c6.500 0 11.900-2.100 15.900-5.800l-7.300-5.700c-2 1.400-4.700 2.300-8.600 2.300-6.300 0-11.600-4.100-13.500-9.800l-7.900 6.100C6.500 42.600 14.600 48 24 48Z"/></svg>
+        Continue with Google
+      </button>
+      <p class="modehint">Secured by Firebase Authentication.</p>
+    </div>
+  </section>
+
+  <!-- ================= MAIN APP ================= -->
+  <section id="app" hidden>
+    <header id="hdr"></header>
+    <main>
+      <div class="view on" id="v-chats"></div>
+      <div class="view" id="v-friends"></div>
+      <div class="view" id="v-profile"></div>
+    </main>
+    <nav>
+      <button data-act="tab" data-tab="chats" class="on" aria-label="Chats">
+        <svg viewBox="0 0 24 24"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 9 9 0 0 1-3.6-.8L3 21l1.900-5A8.300 8.300 0 0 1 3 11.500 8.500 8.500 0 0 1 12 3a8.500 8.500 0 0 1 9 8.500Z"/></svg>
+        Chats<span class="badge" id="nbChats" hidden></span></button>
+      <button data-act="tab" data-tab="friends" aria-label="Friends">
+        <svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.600"/><path d="M2.500 20c0-3.600 2.900-6 6.500-6s6.500 2.400 6.500 6"/><path d="M16 4.600a3.600 3.600 0 0 1 0 6.800M18 14.400c2 .7 3.500 2.600 3.500 5.600"/></svg>
+        Friends<span class="badge" id="nbFriends" hidden></span></button>
+      <button data-act="tab" data-tab="profile" aria-label="Profile">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.200 3.600-7 8-7s8 2.800 8 7"/></svg>
+        Profile</button>
+    </nav>
+
+    <!-- sliding chat window -->
+    <div id="chat" aria-hidden="true">
+      <div class="chead">
+        <button class="back" data-act="back" aria-label="Back to chats"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
+        <span id="chAv"></span>
+        <div class="t"><b id="chName"></b><small id="chSub"></small></div>
+      </div>
+      <div id="cbanner" hidden></div>
+      <div id="msgs"></div>
+      <div id="imgprev" hidden><img id="imgprevimg" alt="Photo to send"><span>Photo ready to send</span><button type="button" data-act="rmimg" aria-label="Remove photo">✕</button></div>
+      <form class="cform" id="cform" autocomplete="off">
+        <button class="attach" type="button" data-act="attach" aria-label="Attach a photo"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="1.800"/><path d="M21 16l-5-5-8 9"/></svg></button>
+        <input type="file" id="cfile" accept="image/*" hidden>
+        <input class="inp" id="cinput" placeholder="Message" maxlength="1000" aria-label="Message">
+        <button class="send" id="csend" type="submit" aria-label="Send" disabled><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+      </form>
+    </div>
+
+    <!-- long-press / right-click menu for your own messages -->
+    <div id="msgmenu" hidden data-act="mmclose">
+      <div class="mm"><button class="del" data-act="delmsg">Delete for everyone</button><button data-act="mmclose">Cancel</button></div>
+    </div>
+    <!-- full-screen photo viewer -->
+    <div id="viewer" hidden data-act="closeview"><img id="viewerimg" alt="Photo"><button type="button" aria-label="Close photo">✕</button></div>
+  </section>
+
+  <!-- username picker: shown when a signed-in account has no username yet (e.g. first Google sign-in) -->
+  <div id="modal" hidden>
+    <form class="mcard" id="unameForm" novalidate>
+      <h3>Pick your username</h3>
+      <p>Friends find you by it. Use 3–15 letters, numbers or underscores.</p>
+      <input class="inp" id="mUser" placeholder="e.g. violet_fox" maxlength="15" autocapitalize="none" style="margin-bottom:8px">
+      <p class="err" id="mErr"></p>
+      <button class="btn" type="submit">Save username</button>
+      <button class="danger" type="button" id="mOut">Sign out</button>
+    </form>
+  </div>
+
+  <div id="toast" role="status"></div>
+</div>
+
+<script type="module">
+/* =====================================================================
+   Mellichat (Firebase v10 modular SDK, loaded from the gstatic CDN)
+   Services used: Authentication (Email/Password + Google) and Realtime Database.
+   Firebase Storage is NOT used (it needs a paid plan): photos are compressed in the
+   browser and stored as small base64 images inside the message.
+   ===================================================================== */
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword,
+  signInWithPopup, signInWithRedirect, GoogleAuthProvider, signOut as fbSignOut
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {
+  getDatabase, ref, onValue, get, set, update, push, remove, runTransaction, serverTimestamp, onDisconnect,
+  query, orderByChild, startAt, endAt, limitToFirst, limitToLast
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+/* ---------------------------------------------------------------------
+   ▼▼▼  PASTE YOUR FIREBASE CONFIG HERE  ▼▼▼
+   Firebase console → Project settings → Your apps → Web app → SDK setup and configuration
+   --------------------------------------------------------------------- */
+const firebaseConfig = {
+  apiKey: "AIzaSyDUYEyJ6rd53Goco1C120ILUws_OeMyrZc",
+  authDomain: "mellichat.firebaseapp.com",
+  databaseURL: "https://mellichat-default-rtdb.firebaseio.com/",
+  projectId: "mellichat",
+  storageBucket: "mellichat.firebasestorage.app",
+  messagingSenderId: "647232307106",
+  appId: "1:647232307106:web:ceaa3713b01d6d3cc3bcfb"
+};
+/* ---------------------------------------------------------------------
+   ▲▲▲  END OF CONFIG  ▲▲▲
+
+   ONE-TIME SETUP
+   1. Authentication → Sign-in method: enable "Email/Password" and "Google".
+   2. Authentication → Settings → Authorized domains: add the domain that hosts this file.
+      Auth does not work from file:// — serve it over https or http://localhost
+      (e.g. `npx serve` or `python3 -m http.server`, or Firebase Hosting / Netlify / GitHub Pages).
+   3. Build → Realtime Database → Create database, then open the "Rules" tab and publish:
+
+   {
+     "rules": {
+       "usernames": {
+         ".read": true,
+         "$name": {
+           ".validate": "$name.matches(/^[a-z0-9_]{3,15}$/)",
+           ".write": "auth != null && newData.val() === auth.uid && (!data.exists() || data.val() === auth.uid)"
+         }
+       },
+       "users": {
+         ".read": "auth != null",
+         ".indexOn": ["username"],
+         "$uid": {
+           ".write": "auth != null && auth.uid === $uid",
+           "username": { ".validate": "newData.isString() && newData.val().matches(/^[a-z0-9_]{3,15}$/) && root.child('usernames').child(newData.val()).val() === $uid" },
+           "name":     { ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 24" },
+           "bio":      { ".validate": "newData.isString() && newData.val().length <= 60" },
+           "color":    { ".validate": "newData.isNumber()" },
+           "status":   { ".validate": "newData.val() === 'online' || newData.val() === 'away' || newData.val() === 'offline'" },
+           "pref":     { ".validate": "newData.val() === 'online' || newData.val() === 'away' || newData.val() === 'offline'" },
+           "$other":   { ".validate": false }
+         }
+       },
+       "friends": {
+         "$uid": {
+           ".read": "auth != null && auth.uid === $uid",
+           "$fid": { ".write": "auth != null && (auth.uid === $uid || (auth.uid === $fid && root.child('requests').child($fid).child($uid).exists()))" }
+         }
+       },
+       "requests": {
+         "$target": {
+           ".read": "auth != null && auth.uid === $target",
+           "$from": { ".write": "auth != null && (auth.uid === $from || auth.uid === $target)" }
+         }
+       },
+       "outgoing": {
+         "$uid": {
+           ".read": "auth != null && auth.uid === $uid",
+           "$tid": { ".write": "auth != null && (auth.uid === $uid || (auth.uid === $tid && root.child('requests').child($tid).child($uid).exists()))" }
+         }
+       },
+       "reads": {
+         "$uid": {
+           ".read": "auth != null && auth.uid === $uid",
+           ".write": "auth != null && auth.uid === $uid",
+           "$cid": { ".read": "auth != null && $cid.contains(auth.uid)" }
+         }
+       },
+       "typing": {
+         "$cid": {
+           ".read": "auth != null && $cid.contains(auth.uid)",
+           "$uid": {
+             ".write": "auth != null && auth.uid === $uid && $cid.contains(auth.uid)",
+             ".validate": "newData.isBoolean()"
+           }
+         }
+       },
+       "chats": {
+         "$cid": {
+           ".read": "auth != null && $cid.contains(auth.uid)",
+           "$mid": {
+             ".write": "auth != null && $cid.contains(auth.uid) && (!data.exists() || data.child('from').val() === auth.uid)",
+             ".validate": "newData.hasChildren(['from','t']) && newData.child('t').isNumber() && newData.child('from').val() === auth.uid && (newData.child('type').val() === 'image' ? (newData.child('img').isString() && newData.child('img').val().length < 200000 && newData.child('img').val().beginsWith('data:image/')) : (newData.child('text').isString() && newData.child('text').val().length <= 1000))"
+           }
+         }
+       }
+     }
+   }
+
+   DATA MODEL
+   usernames/{name} = uid                       unique username → uid lookup (claimed with a transaction)
+   users/{uid}      = {username,name,bio,color,status,pref}   status = live, pref = chosen mode
+   friends/{uid}/{friendUid} = true             written for both people on accept
+   requests/{targetUid}/{fromUid} = {t}         incoming friend requests
+   outgoing/{uid}/{targetUid} = true            requests you've sent
+   chats/{uidA_uidB}/{pushId} = {from,text,t} or {from,type:'image',img,t}
+   reads/{uid}/{chatId} = timestamp             last time you read a thread (unread badges + read ticks)
+   typing/{chatId}/{uid} = true                 present only while someone is typing
+   ===================================================================== */
+
+/* ---------- helpers ---------- */
+const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+const ST = { online: 'Online', away: 'Away', offline: 'Offline' };
+const PAL = ['#7C3AED', '#A855F7', '#6D28D9', '#C026D3', '#4C1D95', '#8B5CF6', '#9333EA', '#5B21B6'];
+const fmtTime = t => new Date(t).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+const fmtList = t => { const d = new Date(t), n = new Date(); return d.toDateString() === n.toDateString() ? fmtTime(t) : d.toLocaleDateString([], { month: 'short', day: 'numeric' }) };
+const UNAME_RE = /^[a-z0-9_]{3,15}$/;
+const IMG_RE = /^data:image\/jpeg;base64,[A-Za-z0-9+/=]+$/;
+const IMG_LIMIT = 190000;                       // max base64 length (~140 KB of image data)
+let toastT;
+function toast(msg) { const t = $('#toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 2800) }
+const friendly = x => ({
+  'auth/email-already-in-use': 'That email already has an account. Try signing in.',
+  'auth/invalid-email': 'Enter a valid email address.',
+  'auth/weak-password': 'Password needs at least 6 characters.',
+  'auth/invalid-credential': 'Email or password is incorrect.',
+  'auth/user-not-found': 'No account found for that email.',
+  'auth/wrong-password': 'Email or password is incorrect.',
+  'auth/too-many-requests': 'Too many attempts. Wait a moment and try again.',
+  'auth/popup-closed-by-user': 'Google sign-in was closed before it finished.',
+  'auth/cancelled-popup-request': 'Google sign-in was cancelled. Try again.',
+  'auth/unauthorized-domain': 'This domain isn’t authorized. Add it under Authentication → Settings → Authorized domains.',
+  'auth/operation-not-allowed': 'Turn this sign-in method on in the Firebase console.',
+  'auth/operation-not-supported-in-this-environment': 'Sign-in needs http(s) or localhost. Serve this file instead of opening it directly.',
+  'auth/network-request-failed': 'Network problem. Check your connection and retry.'
+}[x?.code] || (/permission_denied/i.test(x?.message || '') ? 'Database rules are blocking this. Publish the rules from the code comments.' : (x?.message || 'Something went wrong. Try again.')));
+
+/* ---------- firebase init (skipped until real keys are pasted in) ---------- */
+const CONFIGURED = ['apiKey', 'authDomain', 'databaseURL', 'projectId', 'appId'].every(k => firebaseConfig[k] && !String(firebaseConfig[k]).includes('YOUR_'));
+let auth, db;
+
+/* ---------- state (all mirrored from the database in real time) ---------- */
+let me = null, authUser = null, profile = null, openWith = null, mode = 'up', pendingSignup = null, sessionOn = false, shown = false;
+const P = {};                                   // uid -> public profile cache
+const friends = new Set(), incoming = new Set(), outgoing = new Set();
+const chatsMap = {}, reads = {}, friendRead = {}, typingMap = {}, chatLoaded = {}, lastToast = {};
+let unsubs = [], userSubs = {}, chatSubs = {};
+let searchQ = '', searchRes = null, searchTimer, pendingImg = null, menuMid = null, stick = true;
+const cid = o => [me, o].sort().join('_');
+
+/* ---------- render scheduling (coalesces bursts of snapshots into one paint) ---------- */
+const dirty = new Set(); let raf = 0;
+function mark(...k) { k.forEach(x => dirty.add(x)); if (!raf) raf = requestAnimationFrame(flush) }
+function keepFocus(fn) {
+  const ae = document.activeElement, id = ae && ae.id, pos = ae && ae.selectionStart; fn();
+  if (id) { const el = document.getElementById(id); if (el && el !== ae) { el.focus(); try { el.setSelectionRange(pos, pos) } catch { } } }
+}
+function flush() {
+  raf = 0; if (!me || !profile) { dirty.clear(); return }
+  const d = [...dirty]; dirty.clear();
+  keepFocus(() => {
+    if (d.includes('head')) renderHeader();
+    if (d.includes('chats')) renderChats();
+    if (d.includes('friends')) renderFriends();
+    if (d.includes('profile')) renderProfile();
+    if (d.includes('badges')) renderBadges();
+    if (d.includes('chat') && openWith) { renderChatMeta(); renderMsgs() }
+  });
+}
+
+/* ---------- ui bits ---------- */
+function av(u, cls = '') {
+  const ini = (u.name || u.username || '?').trim().split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase();
+  return `<span class="av ${cls}" style="background:${PAL[(u.color || 0) % PAL.length]}">${esc(ini)}<i class="dot ${u.status || 'offline'}"></i></span>`;
+}
+const msgsOf = fid => chatsMap[cid(fid)] || [];
+const unread = fid => { const lr = reads[cid(fid)] || 0; return msgsOf(fid).filter(m => m.from === fid && m.t > lr).length };
+const markRead = fid => set(ref(db, `reads/${me}/${cid(fid)}`), serverTimestamp()).catch(() => { });
+const preview = m => m.type === 'image' ? '📷 Photo' : esc(m.text || '');
+
+/* ================= AUTH ================= */
+const authErr = m => $('#authErr').textContent = m;
+function setMode(m) {
+  mode = m; $('#seg').classList.toggle('in', m === 'in');
+  $$('#seg button').forEach(b => b.classList.toggle('on', b.dataset.mode === m));
+  $('#fldUser').classList.toggle('collapse', m === 'in');
+  $('#authBtn').textContent = m === 'up' ? 'Create account' : 'Sign in';
+  $('#fPass').autocomplete = m === 'up' ? 'new-password' : 'current-password';
+  authErr('');
+}
+$('#seg').addEventListener('click', e => { const b = e.target.closest('button'); if (b) setMode(b.dataset.mode) });
+
+$('#authForm').addEventListener('submit', async e => {
+  e.preventDefault(); authErr(''); if (!CONFIGURED) return;
+  const em = $('#fEmail').value.trim(), pw = $('#fPass').value, un = $('#fUser').value.trim().toLowerCase();
+  if (!/^\S+@\S+\.\S+$/.test(em)) return authErr('Enter a valid email address.');
+  if (pw.length < 6) return authErr('Password needs at least 6 characters.');
+  $('#authBtn').disabled = true;
+  try {
+    if (mode === 'up') {
+      if (!UNAME_RE.test(un)) throw new Error('Username must be 3–15 letters, numbers or underscores.');
+      if ((await get(ref(db, 'usernames/' + un))).exists()) throw new Error('That username is taken. Try another.');
+      pendingSignup = { username: un, name: cap(un) };
+      await createUserWithEmailAndPassword(auth, em, pw);          // real Firebase sign-up
+    } else await signInWithEmailAndPassword(auth, em, pw);         // real Firebase sign-in
+  } catch (x) { pendingSignup = null; authErr(friendly(x)) }
+  $('#authBtn').disabled = false;
+});
+$('#googleBtn').addEventListener('click', async () => {
+  authErr(''); if (!CONFIGURED) return;
+  const provider = new GoogleAuthProvider();
+  try { await signInWithPopup(auth, provider) }
+  catch (x) {
+    if (x.code === 'auth/popup-blocked') { try { await signInWithRedirect(auth, provider) } catch (y) { authErr(friendly(y)) } }
+    else authErr(friendly(x));
+  }
+});
+
+/* username is claimed atomically so two people can never share one */
+async function createProfile(un, name) {
+  const tx = await runTransaction(ref(db, 'usernames/' + un), cur => (cur === null || cur === me) ? me : undefined);
+  if (!tx.committed) throw new Error('That username is taken. Try another.');
+  await set(ref(db, 'users/' + me), { username: un, name, bio: "Hey, I'm on Mellichat!", color: Math.floor(Math.random() * PAL.length), status: 'online', pref: 'online' });
+}
+function askUsername(msg = '') { $('#mErr').textContent = msg; $('#modal').hidden = false; $('#mUser').focus() }
+$('#unameForm').addEventListener('submit', async e => {
+  e.preventDefault(); const un = $('#mUser').value.trim().toLowerCase();
+  if (!UNAME_RE.test(un)) return $('#mErr').textContent = 'Username must be 3–15 letters, numbers or underscores.';
+  try {
+    await createProfile(un, (authUser?.displayName || '').split(' ')[0] || cap(un));
+    $('#modal').hidden = true; startSession();
+  } catch (x) { $('#mErr').textContent = friendly(x) }
+});
+$('#mOut').addEventListener('click', () => { $('#modal').hidden = true; doSignOut() });
+
+/* Auth gate: the dashboard is only revealed after a verified user + loaded profile exist */
+async function onAuth(user) {
+  $('#boot')?.remove();
+  if (!user) { endSession(); return }
+  if (sessionOn && me === user.uid) return;
+  me = user.uid; authUser = user;
+  try {
+    const s = await get(ref(db, 'users/' + me));
+    if (!s.exists() || !s.val().username) {
+      const want = pendingSignup; pendingSignup = null;
+      if (want) { try { await createProfile(want.username, want.name) } catch (x) { return askUsername(friendly(x)) } }
+      else return askUsername();
+    }
+    startSession();
+  } catch (x) { authErr(friendly(x)); doSignOut() }
+}
+
+/* ================= SESSION: live listeners ================= */
+function watchUser(uid) {
+  if (userSubs[uid]) return;
+  userSubs[uid] = onValue(ref(db, 'users/' + uid), s => {
+    if (s.exists()) P[uid] = { uid, ...s.val() };
+    mark('chats', 'friends'); if (openWith === uid) mark('chat');
+  });
+}
+function watchChat(fid) {
+  if (chatSubs[fid]) return; const id = cid(fid);
+  chatSubs[fid] = [
+    onValue(query(ref(db, 'chats/' + id), limitToLast(50)), s => {                // messages
+      const a = []; s.forEach(c => { a.push({ id: c.key, ...c.val() }) });
+      a.sort((x, y) => (x.t - y.t) || (x.id < y.id ? -1 : 1)); chatsMap[id] = a;
+      const last = a[a.length - 1];
+      if (chatLoaded[fid] && last && last.from === fid && openWith !== fid && lastToast[fid] !== last.id) {
+        lastToast[fid] = last.id; const t = last.type === 'image' ? '📷 Photo' : last.text;
+        toast((P[fid]?.name || 'New message').split(' ')[0] + ': ' + (t.length > 38 ? t.slice(0, 38) + '…' : t));
+      }
+      chatLoaded[fid] = true;
+      if (openWith === fid) { if (unread(fid)) markRead(fid); mark('chat') }
+      mark('chats', 'badges');
+    }),
+    onValue(ref(db, `typing/${id}/${fid}`), s => { typingMap[fid] = s.val() === true; mark('chats'); if (openWith === fid) mark('chat') }),   // friend typing
+    onValue(ref(db, `reads/${fid}/${id}`), s => { friendRead[fid] = s.val() || 0; if (openWith === fid) mark('chat') })                       // friend's read receipt
+  ];
+}
+function startSession() {
+  if (sessionOn) return; sessionOn = true;
+  unsubs.push(onValue(ref(db, 'users/' + me), s => {                               // my own profile (updates across my devices)
+    if (!s.exists()) return; profile = { uid: me, ...s.val() }; P[me] = profile;
+    if (!shown) { shown = true; $('#auth').hidden = true; $('#app').hidden = false; $('#modal').hidden = true; setTab('chats') }
+    mark('head', 'profile', 'chats', 'friends', 'badges');
+  }));
+  unsubs.push(onValue(ref(db, 'friends/' + me), s => {                              // friend list
+    const ids = Object.keys(s.val() || {}); friends.clear(); ids.forEach(i => { friends.add(i); watchUser(i); watchChat(i) });
+    mark('chats', 'friends', 'badges');
+  }));
+  unsubs.push(onValue(ref(db, 'requests/' + me), s => {                             // incoming friend requests
+    const ids = Object.keys(s.val() || {}); incoming.clear(); ids.forEach(i => { incoming.add(i); watchUser(i) });
+    mark('friends', 'badges');
+  }));
+  unsubs.push(onValue(ref(db, 'outgoing/' + me), s => { outgoing.clear(); Object.keys(s.val() || {}).forEach(i => outgoing.add(i)); mark('friends') }));
+  unsubs.push(onValue(ref(db, 'reads/' + me), s => { Object.keys(reads).forEach(k => delete reads[k]); Object.assign(reads, s.val() || {}); mark('chats', 'badges') }));
+  unsubs.push(onValue(ref(db, '.info/connected'), async s => {                      // presence: drop to Offline if the connection closes
+    if (!s.val() || !me) return;
+    try {
+      const st = ref(db, `users/${me}/status`); await onDisconnect(st).set('offline');
+      const pref = (await get(ref(db, `users/${me}/pref`))).val() || 'online'; await set(st, pref);
+    } catch { }
+  }));
+}
+function endSession() {
+  unsubs.forEach(f => f()); Object.values(userSubs).forEach(f => f()); Object.values(chatSubs).flat().forEach(f => f());
+  unsubs = []; userSubs = {}; chatSubs = {};
+  [friends, incoming, outgoing].forEach(s => s.clear());
+  [P, chatsMap, reads, friendRead, typingMap, chatLoaded, lastToast].forEach(o => Object.keys(o).forEach(k => delete o[k]));
+  me = null; authUser = null; profile = null; sessionOn = false; shown = false; openWith = null; searchQ = ''; searchRes = null; pendingImg = null; typingOn = false;
+  $('#chat').classList.remove('open'); $('#app').hidden = true; $('#modal').hidden = true; $('#auth').hidden = false;
+  $('#fPass').value = ''; setMode('in');
+}
+async function doSignOut() {
+  try { if (me) { setTyping(false); const st = ref(db, `users/${me}/status`); await onDisconnect(st).cancel(); await set(st, 'offline') } } catch { }
+  try { await fbSignOut(auth) } catch (x) { toast(friendly(x)) }
+}
+
+/* ================= RENDER ================= */
+function renderHeader() {
+  const m = profile;
+  $('#hdr').innerHTML = `<button class="hd-user" data-act="tab" data-tab="profile" aria-label="Open profile">${av(m, 'sm')}<span><b>${esc(m.name)}</b><small class="${m.status}"><i></i>${ST[m.status] || 'Offline'}</small></span></button><span class="brand">Mellichat</span>`;
+}
+function renderBadges() {
+  const un = [...friends].reduce((n, f) => n + unread(f), 0), rq = incoming.size;
+  const set_ = (el, n) => { el.hidden = !n; el.textContent = n > 9 ? '9+' : n };
+  set_($('#nbChats'), un); set_($('#nbFriends'), rq);
+}
+function renderChats() {
+  const rows = [...friends].map(id => P[id]).filter(Boolean).map(f => { const c = msgsOf(f.uid); return { f, last: c[c.length - 1], un: unread(f.uid) } })
+    .sort((a, b) => (b.last?.t || 0) - (a.last?.t || 0));
+  $('#v-chats').innerHTML = `<h2>Chats</h2>` + (rows.length ? `<div class="list">${rows.map(({ f, last, un }) => `
+    <button class="rowi" data-act="open" data-uid="${f.uid}">${av(f)}
+      <span class="mid"><b>${esc(f.name)}</b>${typingMap[f.uid] ? `<span class="typ">typing…</span>` : `<span class="${un ? 'unr' : ''}">${last ? (last.from === me ? 'You: ' : '') + preview(last) : 'Say hi 👋'}</span>`}</span>
+      <span class="end">${last ? fmtList(last.t) : ''}${un ? `<span class="badge">${un}</span>` : ''}</span></button>`).join('')}</div>`
+    : `<div class="empty"><b>No chats yet</b>Add a friend by username and your conversations will show up here.<br><button class="pill" data-act="tab" data-tab="friends">Find friends</button></div>`);
+}
+const cleanQ = () => searchQ.trim().replace(/^@/, '').toLowerCase();
+function renderFriends() {
+  const inc = [...incoming].map(id => P[id]).filter(Boolean), fr = [...friends].map(id => P[id]).filter(Boolean), q = cleanQ();
+  const btn = u => friends.has(u.uid) ? `<span class="pill line">Friends</span>` : outgoing.has(u.uid) ? `<span class="pill soft">Requested</span>`
+    : incoming.has(u.uid) ? `<button class="pill" data-act="accept" data-uid="${u.uid}">Accept</button>` : `<button class="pill" data-act="add" data-uid="${u.uid}" data-u="${esc(u.username)}">Add</button>`;
+  const ready = searchRes && searchRes.q === q;
+  $('#v-friends').innerHTML = `<h2>Friends</h2>
+    <form class="search" id="fform" autocomplete="off"><div class="wrap"><em>@</em><input class="inp" id="fsearch" placeholder="Search by username" value="${esc(searchQ.replace(/^@/, ''))}" autocapitalize="none" aria-label="Search username"></div><button class="pill" type="submit">Add</button></form>
+    ${q ? (!ready ? `<p class="note" style="text-align:left;margin-top:12px">Searching…</p>` : searchRes.err ? `<div class="empty" style="padding:24px 10px">${esc(searchRes.err)}</div>`
+      : searchRes.r.length ? `<h3>Results</h3><div class="list">${searchRes.r.map(r => { const u = P[r.uid] || r; return `<div class="rowi">${av(u)}<span class="mid"><b>${esc(u.name)}</b><span>@${esc(u.username)}</span></span>${btn(u)}</div>` }).join('')}</div>`
+        : `<div class="empty" style="padding:24px 10px">No one named “@${esc(q)}” yet.<br>Check the spelling and try again.</div>`)
+      : `<p class="note" style="text-align:left;margin-top:10px">Type a username and tap Add. They’ll get a request, and you can chat once they accept.</p>`}
+    ${inc.length ? `<h3>Friend requests (${inc.length})</h3><div class="list">${inc.map(u => `<div class="rowi">${av(u)}<span class="mid"><b>${esc(u.name)}</b><span>@${esc(u.username)}</span></span><button class="pill soft" data-act="decline" data-uid="${u.uid}">Decline</button><button class="pill" data-act="accept" data-uid="${u.uid}">Accept</button></div>`).join('')}</div>` : ''}
+    <h3>Your friends (${fr.length})</h3>
+    ${fr.length ? `<div class="list">${fr.map(u => `<button class="rowi" data-act="open" data-uid="${u.uid}">${av(u)}<span class="mid"><b>${esc(u.name)}</b><span>@${esc(u.username)} · ${ST[u.status] || 'Offline'}</span></span><span class="pill soft">Chat</span></button>`).join('')}</div>`
+      : `<div class="empty" style="padding:24px 10px">Nobody here yet. Search a username above to add your first friend.</div>`}`;
+}
+function renderProfile() {
+  const m = profile, kn = $('#pName') ? $('#pName').value : null, kb = $('#pBio') ? $('#pBio').value : null;
+  $('#v-profile').innerHTML = `<h2>Profile</h2>
+    <div class="pcard">${av(m, 'lg')}<div class="name">${esc(m.name)}</div><div class="uname">@${esc(m.username)}</div></div>
+    <h3>Availability</h3>
+    <div class="modes">${['online', 'away', 'offline'].map(s => `<button class="mode ${m.pref === s || (!m.pref && m.status === s) ? 'on' : ''}" data-act="status" data-s="${s}"><i></i>${ST[s]}</button>`).join('')}</div>
+    <h3>Avatar color</h3>
+    <div class="swatches">${PAL.map((c, i) => `<button class="sw ${m.color % PAL.length === i ? 'on' : ''}" style="background:${c}" data-act="color" data-i="${i}" aria-label="Color ${i + 1}"></button>`).join('')}</div>
+    <h3>About you</h3>
+    <div class="stack"><input class="inp" id="pName" maxlength="24" placeholder="Display name" value="${esc(kn ?? m.name)}" aria-label="Display name">
+    <input class="inp" id="pBio" maxlength="60" placeholder="Short bio" value="${esc(kb ?? m.bio ?? '')}" aria-label="Bio">
+    <button class="btn" data-act="saveprofile">Save profile</button></div>
+    <button class="danger" data-act="signout">Sign out</button>
+    <p class="note">Signed in as ${esc(authUser?.email || 'your account')}. Your status, friends and chats sync across your devices.</p>`;
+}
+
+/* ================= NAV ================= */
+function setTab(t) {
+  $$('.view').forEach(v => v.classList.toggle('on', v.id === 'v-' + t));
+  $$('nav button').forEach(b => b.classList.toggle('on', b.dataset.tab === t));
+  $(`#v-${t}`).scrollTop = 0;
+}
+
+/* ================= FRIENDS (saved to the database) ================= */
+async function sendRequest(uid, uname) {
+  if (friends.has(uid) || outgoing.has(uid)) return;
+  if (incoming.has(uid)) return accept(uid);
+  try {
+    await update(ref(db), { [`requests/${uid}/${me}`]: { t: serverTimestamp() }, [`outgoing/${me}/${uid}`]: true });
+    toast('Request sent to @' + (uname || P[uid]?.username || 'friend'));
+  } catch (x) { toast(friendly(x)) }
+}
+async function accept(uid) {
+  try {
+    await update(ref(db), { [`friends/${me}/${uid}`]: true, [`friends/${uid}/${me}`]: true, [`requests/${me}/${uid}`]: null, [`outgoing/${uid}/${me}`]: null });
+    toast('You and @' + (P[uid]?.username || 'friend') + ' are friends');
+  } catch (x) { toast(friendly(x)) }
+}
+async function decline(uid) {
+  try { await update(ref(db), { [`requests/${me}/${uid}`]: null, [`outgoing/${uid}/${me}`]: null }) } catch (x) { toast(friendly(x)) }
+}
+function runSearch() {
+  const q = cleanQ(); clearTimeout(searchTimer);
+  if (!q) { searchRes = null; return mark('friends') }
+  searchTimer = setTimeout(async () => {
+    try {
+      const s = await get(query(ref(db, 'users'), orderByChild('username'), startAt(q), endAt(q + '\uf8ff'), limitToFirst(8)));
+      if (q !== cleanQ()) return; const r = [];
+      s.forEach(c => { if (c.key !== me) { P[c.key] = { uid: c.key, ...c.val() }; r.push({ uid: c.key }) } });
+      searchRes = { q, r: r.map(x => P[x.uid]) };
+    } catch (x) { searchRes = { q, r: [], err: friendly(x) } }
+    mark('friends');
+  }, 250);
+}
+async function submitSearch() {
+  const q = cleanQ(); if (!q) return toast('Type a username to search.');
+  try {
+    const s = await get(ref(db, 'usernames/' + q)); if (!s.exists()) return toast('No user named @' + q);
+    const uid = s.val();
+    if (uid === me) return toast('That’s you!');
+    if (friends.has(uid)) return toast('Already friends with @' + q);
+    if (outgoing.has(uid)) return toast('Request already sent to @' + q);
+    await sendRequest(uid, q);
+  } catch (x) { toast(friendly(x)) }
+}
+
+/* ================= CHAT ================= */
+let typingOn = false, typingTimer = 0, typingLast = 0;
+function setTyping(on) {                       // writes typing/{chat}/{me}; auto-clears after 3s idle, on send, on close, on disconnect
+  if (!me || !openWith) return; const r = ref(db, `typing/${cid(openWith)}/${me}`);
+  if (on) {
+    const now = Date.now();
+    if (!typingOn || now - typingLast > 2000) { typingOn = true; typingLast = now; set(r, true).catch(() => { }); onDisconnect(r).remove().catch(() => { }) }
+    clearTimeout(typingTimer); typingTimer = setTimeout(() => setTyping(false), 3000);
+  } else { clearTimeout(typingTimer); if (typingOn) { typingOn = false; remove(r).catch(() => { }) } }
+}
+function openChat(uid) {
+  if (!P[uid]) return; openWith = uid; if (unread(uid)) markRead(uid);
+  renderChatMeta(); renderMsgs(true);
+  $('#chat').classList.add('open'); $('#chat').setAttribute('aria-hidden', 'false');
+  mark('chats', 'badges'); setTimeout(() => { if (matchMedia('(pointer:fine)').matches) $('#cinput').focus() }, 350);
+}
+function closeChat() {
+  setTyping(false); openWith = null; pendingImg = null; renderPrev(); $('#cinput').value = ''; updateSend();
+  $('#chat').classList.remove('open'); $('#chat').setAttribute('aria-hidden', 'true'); $('#cinput').blur(); mark('chats', 'badges');
+}
+function renderChatMeta() {
+  const f = P[openWith]; if (!f) return;
+  $('#chAv').innerHTML = av(f, 'sm'); $('#chName').textContent = f.name;
+  const s = $('#chSub'), ty = typingMap[openWith]; s.className = ty ? 'typing' : '';
+  s.textContent = ty ? 'typing…' : (ST[f.status] || 'Offline') + (f.status === 'online' ? ' now' : '');
+  const b = $('#cbanner'); b.hidden = f.status !== 'offline'; b.textContent = f.name.split(' ')[0] + ' is offline. They’ll see your messages when they’re back.';
+}
+function renderMsgs(force) {
+  const list = msgsOf(openWith), f = P[openWith], box = $('#msgs'); if (!f) return;
+  stick = force || box.scrollHeight - box.scrollTop - box.clientHeight < 140;
+  const fr = friendRead[openWith] || 0;
+  box.innerHTML = (list.length ? list.map((g, i) => {
+    const mine = g.from === me, nx = list[i + 1], end = !nx || nx.from !== g.from || nx.t - g.t > 300000;
+    const body = g.type === 'image'
+      ? (IMG_RE.test(g.img || '') ? `<div class="bub hasimg"><img class="mimg" data-act="viewimg" data-mid="${esc(g.id)}" src="${g.img}" alt="Photo"></div>` : `<div class="bub">📷 Photo unavailable</div>`)
+      : `<div class="bub">${esc(g.text || '')}</div>`;
+    const tick = mine ? `<span class="tk ${g.t <= fr ? 'rd' : ''}" aria-label="${g.t <= fr ? 'Read' : 'Sent'}">${g.t <= fr ? '✓✓' : '✓'}</span>` : '';
+    return `<div class="mrow ${mine ? 'me' : 'them'}" data-mid="${esc(g.id)}">${body}${end ? `<time>${fmtTime(g.t)}${tick}</time>` : ''}</div>`;
+  }).join('') : `<div class="empty"><b>Start the conversation</b>Send ${esc(f.name.split(' ')[0])} your first message.</div>`)
+    + (typingMap[openWith] ? `<div class="mrow them"><div class="bub typingb"><i></i><i></i><i></i></div></div>` : '');
+  if (stick) box.scrollTop = box.scrollHeight;
+}
+$('#msgs').addEventListener('load', () => { if (stick) { const b = $('#msgs'); b.scrollTop = b.scrollHeight } }, true);   // keep pinned to bottom while photos load
+
+/* --- sending text / photos --- */
+const updateSend = () => $('#csend').disabled = !($('#cinput').value.trim() || pendingImg);
+function renderPrev() {
+  $('#imgprev').hidden = !pendingImg;
+  const i = $('#imgprevimg'); if (pendingImg) i.src = pendingImg; else i.removeAttribute('src');
+}
+$('#cinput').addEventListener('input', e => { updateSend(); setTyping(!!e.target.value.trim()) });
+$('#cform').addEventListener('submit', async e => {
+  e.preventDefault(); const inp = $('#cinput'), text = inp.value.trim(), img = pendingImg; if (!(text || img) || !openWith) return;
+  const to = openWith, path = ref(db, 'chats/' + cid(to)); let sentImg = false;
+  setTyping(false); inp.value = ''; pendingImg = null; renderPrev(); updateSend();
+  try {
+    if (img) { await push(path, { from: me, type: 'image', img, t: serverTimestamp() }); sentImg = true }
+    if (text) await push(path, { from: me, text, t: serverTimestamp() });      // appears instantly, syncs to the friend in real time
+  } catch (x) { toast(friendly(x)); inp.value = text; if (!sentImg) pendingImg = img; renderPrev(); updateSend() }
+});
+
+/* --- photo picking: resize + compress in the browser so it fits the free database --- */
+function loadImg(file) {
+  return new Promise((res, rej) => {
+    const u = URL.createObjectURL(file), i = new Image();
+    i.onload = () => { URL.revokeObjectURL(u); res(i) };
+    i.onerror = () => { URL.revokeObjectURL(u); rej(new Error('Couldn’t read that photo. Try a JPG or PNG.')) };
+    i.src = u;
+  });
+}
+async function compress(file) {
+  if (!file.type.startsWith('image/')) throw new Error('Please choose an image file.');
+  if (file.size > 15 * 1024 * 1024) throw new Error('That photo is over 15 MB. Pick a smaller one.');
+  const img = await loadImg(file); let w = Math.min(800, img.width);
+  for (let n = 0; n < 6 && w >= 240; n++) {
+    const h = Math.round(img.height * w / img.width), c = document.createElement('canvas'); c.width = w; c.height = h;
+    const x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, w, h); x.drawImage(img, 0, 0, w, h);
+    for (let q = 0.7; q >= 0.35; q -= 0.1) { const d = c.toDataURL('image/jpeg', q); if (d.length <= IMG_LIMIT) return d }
+    w = Math.round(w * 0.75);
+  }
+  throw new Error('That photo is too detailed to send. Try a different one.');
+}
+$('#cfile').addEventListener('change', async e => {
+  const f = e.target.files[0]; e.target.value = ''; if (!f) return;
+  try { toast('Preparing photo…'); pendingImg = await compress(f); renderPrev(); updateSend() } catch (x) { toast(x.message) }
+});
+
+/* --- delete for everyone: long-press (touch) or right-click (desktop) on your own message --- */
+let lpT = 0, lpFired = false;
+const msgsEl = $('#msgs');
+function openMenu(mid) { menuMid = mid; $('#msgmenu').hidden = false }
+msgsEl.addEventListener('pointerdown', e => {
+  const row = e.target.closest('.mrow.me[data-mid]'); if (!row) return; lpFired = false; clearTimeout(lpT);
+  lpT = setTimeout(() => { lpFired = true; openMenu(row.dataset.mid); navigator.vibrate?.(15) }, 500);
+});
+['pointerup', 'pointercancel', 'pointermove', 'pointerleave'].forEach(ev => msgsEl.addEventListener(ev, () => clearTimeout(lpT)));
+msgsEl.addEventListener('contextmenu', e => { const row = e.target.closest('.mrow.me[data-mid]'); if (row) { e.preventDefault(); openMenu(row.dataset.mid) } });
+async function deleteMsg() {
+  const mid = menuMid; $('#msgmenu').hidden = true; menuMid = null; if (!mid || !openWith) return;
+  try { await remove(ref(db, `chats/${cid(openWith)}/${mid}`)); toast('Message deleted') } catch (x) { toast(friendly(x)) }
+}
+
+/* ================= ACTIONS ================= */
+async function setStatus(s) {
+  try { await update(ref(db, 'users/' + me), { pref: s, status: s }); toast('You’re now ' + ST[s].toLowerCase()) } catch (x) { toast(friendly(x)) }
+}
+document.addEventListener('click', async e => {
+  const el = e.target.closest('[data-act]'); if (!el || !me) return;
+  const a = el.dataset.act, uid = el.dataset.uid;
+  if (a === 'mmclose' && el.id === 'msgmenu' && e.target !== el) return;       // only the dim backdrop itself closes the menu
+  if (a === 'tab') { if (openWith) closeChat(); setTab(el.dataset.tab) }
+  else if (a === 'open') openChat(uid);
+  else if (a === 'back') closeChat();
+  else if (a === 'add') sendRequest(uid, el.dataset.u);
+  else if (a === 'accept') accept(uid);
+  else if (a === 'decline') decline(uid);
+  else if (a === 'status') setStatus(el.dataset.s);
+  else if (a === 'color') update(ref(db, 'users/' + me), { color: +el.dataset.i }).catch(x => toast(friendly(x)));
+  else if (a === 'attach') $('#cfile').click();
+  else if (a === 'rmimg') { pendingImg = null; renderPrev(); updateSend() }
+  else if (a === 'viewimg') {
+    if (lpFired) { lpFired = false; return }
+    const m = msgsOf(openWith).find(x => x.id === el.dataset.mid); if (m && IMG_RE.test(m.img || '')) { $('#viewerimg').src = m.img; $('#viewer').hidden = false }
+  }
+  else if (a === 'closeview') { $('#viewer').hidden = true; $('#viewerimg').removeAttribute('src') }
+  else if (a === 'delmsg') deleteMsg();
+  else if (a === 'mmclose') { $('#msgmenu').hidden = true; menuMid = null }
+  else if (a === 'saveprofile') {
+    const n = $('#pName').value.trim(), b = $('#pBio').value.trim(); if (!n) return toast('Display name can’t be empty.');
+    try { await update(ref(db, 'users/' + me), { name: n, bio: b }); toast('Profile saved') } catch (x) { toast(friendly(x)) }
+  } else if (a === 'signout') doSignOut();
+});
+document.addEventListener('input', e => { if (e.target.id === 'fsearch') { searchQ = e.target.value; runSearch() } });
+document.addEventListener('submit', e => { if (e.target.id === 'fform') { e.preventDefault(); submitSearch() } });
+addEventListener('keydown', e => { if (e.key === 'Escape') { $('#viewer').hidden = true; $('#msgmenu').hidden = true } });
+
+/* ================= BOOT ================= */
+setMode('up');
+if (!CONFIGURED) {
+  $('#boot').remove(); $('#setup').hidden = false;
+  ['#authBtn', '#googleBtn'].forEach(s => $(s).disabled = true);   // nobody gets past this screen without real Firebase auth
+} else {
+  const app = initializeApp(firebaseConfig); auth = getAuth(app); db = getDatabase(app);
+  onAuthStateChanged(auth, onAuth);
+}
+</script>
+</body>
+</html>
